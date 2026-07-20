@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>Scientific Calculator — fx-991ES PLUS Style</title>
+<style>
+  :root{
+    --page-bg-1:#0e1010;
+    --page-bg-2:#1a1d22;
+    --body-black:#232629;
+    --body-black-2:#17191b;
+    --lcd-bg:#c9d3c0;
+    --lcd-bg-2:#b9c5b0;
+    --lcd-text:#1c2418;
+    --key-dark:#3a3d45;
+    --key-dark-hi:#46494c;
+    --key-num:#2c2f32;
+    --key-num-hi:#383b3e;
+    --key-orange:#c97a3d;
+    --key-orange-hi:#d98a4d;
+    --key-blue:#3d6f98;
+    --key-blue-hi:#4d81a8;
+    --key-red:#a4453f;
+    --text-light:#eef0ee;
+    --shift-color:#e0a95f;
+    --alpha-color:#e2635a;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(circle at 50% 0%, var(--page-bg-2), var(--page-bg-1) 70%);
+    font-family:'Segoe UI', Tahoma, Arial, sans-serif;
+    padding:24px;
+  }
+
+  .device{
+    width:380px;
+    background:linear-gradient(160deg, var(--body-black), var(--body-black-2) 85%);
+    border-radius:22px;
+    padding:20px 18px 26px;
+    box-shadow:
+      0 30px 60px -20px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.03) inset;
+    position:relative;
+  }
+
+  .brand-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:2px 6px 12px;
+    color:#9a9d9f;
+  }
+  .brand-row .name{
+    font-size:13px;
+    letter-spacing:2px;
+    font-weight:600;
+    color:#d7d9d7;
+  }
+  .brand-row .model{
+    font-size:11px;
+    letter-spacing:1px;
+    color:#8b8e90;
+  }
+
+  .screen-frame{
+    background:#0c0d0e;
+    border-radius:10px;
+    padding:10px 12px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.6) inset;
+  }
+
+  .screen{
+    background:linear-gradient(175deg, var(--lcd-bg), var(--lcd-bg-2));
+    border-radius:4px;
+    min-height:96px;
+    padding:10px 12px 8px;
+    font-family:'Consolas','Courier New', monospace;
+    position:relative;
+    overflow:hidden;
+  }
+  .screen::after{
+    content:"";
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(180deg, rgba(0,0,0,0.035) 0px, rgba(0,0,0,0.035) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;
+  }
+
+  .status-row{
+    display:flex;
+    gap:10px;
+    font-size:10px;
+    letter-spacing:1px;
+    color:#4b5741;
+    font-weight:700;
+    min-height:12px;
+  }
+  .status-row span{opacity:0.25;}
+  .status-row span.on{opacity:1;}
+
+  .expr-line{
+    min-height:20px;
+    text-align:right;
+    color:#3c4634;
+    font-size:15px;
+    letter-spacing:0.5px;
+    word-break:break-all;
+    margin-top:4px;
+  }
+
+  .result-line{
+    text-align:right;
+    color:var(--lcd-text);
+    font-size:30px;
+    font-weight:600;
+    letter-spacing:0.5px;
+    min-height:38px;
+    margin-top:2px;
+    word-break:break-all;
+  }
+
+  .keys{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:7px;
+  }
+
+  button.key{
+    border:none;
+    border-radius:8px;
+    height:38px;
+    color:var(--text-light);
+    font-size:13px;
+    font-weight:600;
+    background:linear-gradient(180deg, var(--key-dark-hi), var(--key-dark));
+    box-shadow:0 2px 0 rgba(0,0,0,0.45), 0 1px 1px rgba(255,255,255,0.05) inset;
+    cursor:pointer;
+    position:relative;
+    transition:transform 0.04s ease;
+    font-family:inherit;
+  }
+  button.key:active{
+    transform:translateY(2px);
+    box-shadow:0 0 0 rgba(0,0,0,0.45);
+  }
+  button.key .sub{
+    position:absolute;
+    top:2px; left:5px;
+    font-size:8px;
+    color:var(--shift-color);
+    font-weight:600;
+  }
+
+  button.key.num{
+    background:linear-gradient(180deg, var(--key-num-hi), var(--key-num));
+    font-size:15px;
+  }
+  button.key.op{
+    background:linear-gradient(180deg, var(--key-blue-hi), var(--key-blue));
+  }
+  button.key.eq{
+    background:linear-gradient(180deg, var(--key-orange-hi), var(--key-orange));
+    grid-column:span 1;
+  }
+  button.key.clear{
+    background:linear-gradient(180deg, #b85a52, var(--key-red));
+  }
+  button.key.wide{
+    grid-column:span 2;
+  }
+
+  .foot-note{
+    text-align:center;
+    color:#6d7072;
+    font-size:10px;
+    margin-top:14px;
+    line-height:1.5;
+    padding:0 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="brand-row">
+    <span class="name">SCIENTIFIC CALCULATOR</span>
+    <span class="model">fx&#8209;991ES&nbsp;PLUS&nbsp;style</span>
+  </div>
+
+  <div class="screen-frame">
+    <div class="screen">
+      <div class="status-row">
+        <span id="stDeg">DEG</span>
+        <span id="stRad">RAD</span>
+        <span id="stM">M</span>
+        <span id="stFrac">D/F</span>
+      </div>
+      <div class="expr-line" id="exprLine">&nbsp;</div>
+      <div class="result-line" id="resultLine">0</div>
+    </div>
+  </div>
+
+  <div class="keys" id="keys"></div>
+
+  <div class="foot-note">
+<h2>Made by Uday </h2>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- State ----------
+  const state = {
+    tokens: [],
+    ans: 0,
+    memory: 0,
+    mode: 'DEG',      // 'DEG' or 'RAD'
+    fracView: false,
+    lastResult: 0,
+    justEvaluated: false
+  };
+
+  const exprLine = document.getElementById('exprLine');
+  const resultLine = document.getElementById('resultLine');
+  const stDeg = document.getElementById('stDeg');
+  const stRad = document.getElementById('stRad');
+  const stM = document.getElementById('stM');
+  const stFrac = document.getElementById('stFrac');
+
+  // ---------- Token helpers ----------
+  function last(){ return state.tokens[state.tokens.length-1]; }
+
+  function endsPrimary(tok){
+    if(!tok) return false;
+    return tok.t==='NUM' || tok.t==='CONST' || tok.t==='RP' || tok.t==='POST';
+  }
+
+  function pushToken(tok){
+    state.tokens.push(tok);
+  }
+
+  function maybeImplicitMul(){
+    // insert implicit * when a new primary-starting token follows a completed primary
+    if(endsPrimary(last())){
+      pushToken({t:'OP', v:'*'});
+    }
+  }
+
+  function inputDigit(d){
+    if(state.justEvaluated){
+      state.tokens = [];
+      state.justEvaluated = false;
+    }
+    const l = last();
+    if(l && l.t==='NUM'){
+      l.v += d;
+    } else {
+      maybeImplicitMul();
+      pushToken({t:'NUM', v:d});
+    }
+    render();
+  }
+
+  function inputDot(){
+    if(state.justEvaluated){
+      state.tokens = [];
+      state.justEvaluated = false;
+    }
+    const l = last();
+    if(l && l.t==='NUM'){
+      if(!l.v.includes('.')) l.v += '.';
+    } else {
+      maybeImplicitMul();
+      pushToken({t:'NUM', v:'0.'});
+    }
+    render();
+  }
+
+  function inputOp(op){
+    state.justEvaluated = false;
+    const l = last();
+    if(!l){
+      // start expression with Ans if operator pressed first (except unary handled separately)
+      pushToken({t:'CONST', v:'ans'});
+    } else if(l.t==='OP'){
+      l.v = op; // replace pending operator
+      render();
+      return;
+    }
+    pushToken({t:'OP', v:op});
+    render();
+  }
+
+  function inputNeg(){
+    state.justEvaluated = false;
+    const l = last();
+    // if it directly follows a completed primary, treat as subtraction from Ans-like continuation is odd;
+    // simplest: always allow negate as unary marker before next primary
+    if(endsPrimary(l)){
+      pushToken({t:'OP', v:'*'});
+    }
+    pushToken({t:'NEG'});
+    render();
+  }
+
+  function inputParenOpen(){
+    state.justEvaluated = false;
+    maybeImplicitMul();
+    pushToken({t:'LP'});
+    render();
+  }
+
+  function inputParenClose(){
+    state.justEvaluated = false;
+    // only add if there's an unmatched LP
+    let depth=0;
+    for(const tok of state.tokens){
+      if(tok.t==='LP') depth++;
+      if(tok.t==='RP') depth--;
+    }
+    if(depth>0 && endsPrimary(last())){
+      pushToken({t:'RP'});
+      render();
+    }
+  }
+
+  function inputFunc(name){
+    if(state.justEvaluated){
+      state.tokens = [];
+      state.justEvaluated = false;
+    }
+    maybeImplicitMul();
+    pushToken({t:'FUNC', v:name});
+    pushToken({t:'LP'});
+    render();
+  }
+
+  function inputConst(name){
+    if(state.justEvaluated){
+      state.tokens = [];
+      state.justEvaluated = false;
+    }
+    maybeImplicitMul();
+    pushToken({t:'CONST', v:name});
+    render();
+  }
+
+  function inputPost(kind){
+    state.justEvaluated = false;
+    if(endsPrimary(last())){
+      pushToken({t:'POST', v:kind});
+      render();
+    }
+  }
+
+  function backspace(){
+    state.justEvaluated = false;
+    const l = last();
+    if(l && l.t==='NUM' && l.v.length>1){
+      l.v = l.v.slice(0,-1);
+    } else if(l && l.t==='FUNC'){
+      // remove func + its auto LP
+      state.tokens.pop(); // LP
+      state.tokens.pop(); // FUNC
+    } else {
+      state.tokens.pop();
+    }
+    render();
+  }
+
+  function allClear(){
+    state.tokens = [];
+    state.justEvaluated = false;
+    state.fracView = false;
+    render();
+  }
+
+  // ---------- Display mapping ----------
+  const FUNC_LABEL = {sin:'sin',cos:'cos',tan:'tan',log:'log',ln:'ln',sqrt:'√'};
+  const CONST_LABEL = {pi:'π', e:'e', ans:'Ans'};
+  const POST_LABEL = {sq:'²', fact:'!', recip:'⁻¹', pct:'%'};
+
+  function tokensToDisplay(tokens){
+    let out = '';
+    for(const tok of tokens){
+      switch(tok.t){
+        case 'NUM': out += tok.v; break;
+        case 'OP': out += ({'+':' + ','-':' − ','*':' × ','/':' ÷ ','^':'^'})[tok.v]; break;
+        case 'LP': out += '('; break;
+        case 'RP': out += ')'; break;
+        case 'FUNC': out += FUNC_LABEL[tok.v] || tok.v; break;
+        case 'CONST': out += CONST_LABEL[tok.v] || tok.v; break;
+        case 'POST': out += POST_LABEL[tok.v] || ''; break;
+        case 'NEG': out += '-'; break;
+      }
+    }
+    return out;
+  }
+
+  // ---------- Parser / Evaluator ----------
+  function factorial(n){
+    if(n<0 || Math.floor(n)!==n) return NaN;
+    if(n>170) return Infinity;
+    let r=1;
+    for(let i=2;i<=n;i++) r*=i;
+    return r;
+  }
+
+  function evaluateTokens(tokens){
+    let i = 0;
+
+    function peek(){ return tokens[i]; }
+    function advance(){ return tokens[i++]; }
+
+    function parseExpression(){
+      let v = parseTerm();
+      while(peek() && peek().t==='OP' && (peek().v==='+' || peek().v==='-')){
+        const op = advance().v;
+        const rhs = parseTerm();
+        v = op==='+' ? v+rhs : v-rhs;
+      }
+      return v;
+    }
+
+    function parseTerm(){
+      let v = parsePower();
+      while(peek() && peek().t==='OP' && (peek().v==='*' || peek().v==='/')){
+        const op = advance().v;
+        const rhs = parsePower();
+        v = op==='*' ? v*rhs : v/rhs;
+      }
+      return v;
+    }
+
+    function parsePower(){
+      let v = parseUnary();
+      if(peek() && peek().t==='OP' && peek().v==='^'){
+        advance();
+        const rhs = parsePower(); // right-assoc
+        v = Math.pow(v, rhs);
+      }
+      return v;
+    }
+
+    function parseUnary(){
+      if(peek() && peek().t==='NEG'){
+        advance();
+        return -parseUnary();
+      }
+      return parsePostfixPrimary();
+    }
+
+    function parsePostfixPrimary(){
+      let v = parsePrimary();
+      while(peek() && peek().t==='POST'){
+        const kind = advance().v;
+        if(kind==='sq') v = v*v;
+        else if(kind==='fact') v = factorial(v);
+        else if(kind==='recip') v = 1/v;
+        else if(kind==='pct') v = v/100;
+      }
+      return v;
+    }
+
+    function toRad(x){ return state.mode==='DEG' ? x*Math.PI/180 : x; }
+    function fromRad(x){ return state.mode==='DEG' ? x*180/Math.PI : x; }
+
+    function applyFunc(name, x){
+      switch(name){
+        case 'sin': return Math.sin(toRad(x));
+        case 'cos': return Math.cos(toRad(x));
+        case 'tan': return Math.tan(toRad(x));
+        case 'asin': return fromRad(Math.asin(x));
+        case 'acos': return fromRad(Math.acos(x));
+        case 'atan': return fromRad(Math.atan(x));
+        case 'log': return Math.log10(x);
+        case 'ln': return Math.log(x);
+        case 'sqrt': return Math.sqrt(x);
+        default: return NaN;
+      }
+    }
+
+    function parsePrimary(){
+      const tok = peek();
+      if(!tok) throw new Error('incomplete');
+
+      if(tok.t==='NUM'){
+        advance();
+        const val = parseFloat(tok.v);
+        if(isNaN(val)) throw new Error('bad number');
+        return val;
+      }
+      if(tok.t==='CONST'){
+        advance();
+        if(tok.v==='pi') return Math.PI;
+        if(tok.v==='e') return Math.E;
+        if(tok.v==='ans') return state.ans;
+        throw new Error('bad const');
+      }
+      if(tok.t==='LP'){
+        advance();
+        const v = parseExpression();
+        if(peek() && peek().t==='RP') advance();
+        // if no RP found (ran out of tokens), treat as auto-closed
+        return v;
+      }
+      if(tok.t==='FUNC'){
+        const name = advance().v;
+        if(peek() && peek().t==='LP') advance();
+        const arg = parseExpression();
+        if(peek() && peek().t==='RP') advance();
+        return applyFunc(name, arg);
+      }
+      throw new Error('unexpected token');
+    }
+
+    const result = parseExpression();
+    if(i < tokens.length){
+      // leftover tokens -> malformed expression
+      throw new Error('trailing tokens');
+    }
+    return result;
+  }
+
+  // ---------- Fraction conversion ----------
+  function toFraction(x, tolerance, maxDen){
+    tolerance = tolerance || 1e-9;
+    maxDen = maxDen || 100000;
+    const sign = x<0 ? -1 : 1;
+    x = Math.abs(x);
+    const whole = Math.floor(x);
+    let frac = x - whole;
+    if(frac < tolerance) return {whole:sign*whole, num:0, den:1};
+
+    let h1=1,h2=0,k1=0,k2=1,b=frac;
+    do{
+      const a = Math.floor(b);
+      let aux = h1; h1=a*h1+h2; h2=aux;
+      aux=k1; k1=a*k1+k2; k2=aux;
+      if(Math.abs(b-a) < tolerance) break;
+      b = 1/(b-a);
+    } while(k1 <= maxDen);
+
+    if(k1===0 || k1>maxDen) return null;
+    return {whole: sign*whole, num:h1, den:k1, sign};
+  }
+
+  function formatNumber(x){
+    if(!isFinite(x)) return x>0 ? 'Math ERROR' : (x<0 ? 'Math ERROR' : 'ERROR');
+    if(Object.is(x,-0)) x = 0;
+    const abs = Math.abs(x);
+    if(abs!==0 && (abs >= 1e10 || abs < 1e-9)){
+      return x.toExponential(6).replace(/e([+-])(\d+)/,' ×10^$1$2');
+    }
+    let s = parseFloat(x.toPrecision(10)).toString();
+    return s;
+  }
+
+  // ---------- Render ----------
+  function render(){
+    exprLine.textContent = tokensToDisplay(state.tokens) || '\u00A0';
+
+    stDeg.classList.toggle('on', state.mode==='DEG');
+    stRad.classList.toggle('on', state.mode==='RAD');
+    stM.classList.toggle('on', state.memory!==0);
+    stFrac.classList.toggle('on', state.fracView);
+
+    if(state.tokens.length===0){
+      resultLine.textContent = state.justEvaluated ? formatResult() : '0';
+      return;
+    }
+    resultLine.textContent = formatResult();
+  }
+
+  function formatResult(){
+    if(state.justEvaluated){
+      if(state.fracView){
+        const f = toFraction(state.lastResult);
+        if(f){
+          if(f.num===0) return String(f.whole);
+          if(f.whole!==0) return `${f.whole}  ${f.num}\u2044${f.den}`;
+          return `${f.sign<0?'-':''}${f.num}\u2044${f.den}`;
+        }
+      }
+      return formatNumber(state.lastResult);
+    }
+    // live preview while typing
+    try{
+      const v = evaluateTokens(state.tokens);
+      if(isFinite(v)) return formatNumber(v);
+      return '\u00A0';
+    }catch(e){
+      return '\u00A0';
+    }
+  }
+
+  function doEquals(){
+    try{
+      const v = evaluateTokens(state.tokens);
+      if(!isFinite(v)){
+        resultLine.textContent = 'Math ERROR';
+        state.tokens = [];
+        state.justEvaluated = false;
+        return;
+      }
+      state.ans = v;
+      state.lastResult = v;
+      state.justEvaluated = true;
+      state.fracView = false;
+      render();
+    }catch(e){
+      resultLine.textContent = 'Math ERROR';
+      state.tokens = [];
+      state.justEvaluated = false;
+    }
+  }
+
+  function toggleFrac(){
+    if(state.justEvaluated){
+      state.fracView = !state.fracView;
+      render();
+    }
+  }
+
+  function toggleMode(){
+    state.mode = state.mode==='DEG' ? 'RAD' : 'DEG';
+    render();
+  }
+
+  function memAdd(sign){
+    try{
+      const v = state.justEvaluated ? state.lastResult : evaluateTokens(state.tokens);
+      state.memory += sign*v;
+      render();
+    }catch(e){ /* ignore */ }
+  }
+  function memRecall(){
+    if(state.justEvaluated){ state.tokens=[]; state.justEvaluated=false; }
+    maybeImplicitMul();
+    pushToken({t:'NUM', v:String(state.memory)});
+    render();
+  }
+  function memClear(){
+    state.memory = 0;
+    render();
+  }
+
+  // ---------- Keypad definition ----------
+  const KEYS = [
+    {label:'AC', cls:'clear', action:allClear},
+    {label:'⌫', cls:'', action:backspace},
+    {label:'(', cls:'', action:inputParenOpen},
+    {label:')', cls:'', action:inputParenClose},
+    {label:'DEG', cls:'', action:toggleMode, id:'modeKey'},
+
+    {label:'x²', cls:'', action:()=>inputPost('sq')},
+    {label:'√', cls:'', action:()=>inputFunc('sqrt')},
+    {label:'x^y', cls:'', action:()=>inputOp('^')},
+    {label:'x!', cls:'', action:()=>inputPost('fact')},
+    {label:'1/x', cls:'', action:()=>inputPost('recip')},
+
+    {label:'sin', cls:'', action:()=>inputFunc('sin')},
+    {label:'cos', cls:'', action:()=>inputFunc('cos')},
+    {label:'tan', cls:'', action:()=>inputFunc('tan')},
+    {label:'log', cls:'', action:()=>inputFunc('log')},
+    {label:'ln', cls:'', action:()=>inputFunc('ln')},
+
+    {label:'π', cls:'', action:()=>inputConst('pi')},
+    {label:'e', cls:'', action:()=>inputConst('e')},
+    {label:'Ans', cls:'', action:()=>inputConst('ans')},
+    {label:'M+', cls:'', action:()=>memAdd(1)},
+    {label:'MC', cls:'', action:memClear},
+
+    {label:'7', cls:'num', action:()=>inputDigit('7')},
+    {label:'8', cls:'num', action:()=>inputDigit('8')},
+    {label:'9', cls:'num', action:()=>inputDigit('9')},
+    {label:'÷', cls:'op', action:()=>inputOp('/')},
+    {label:'%', cls:'', action:()=>inputPost('pct')},
+
+    {label:'4', cls:'num', action:()=>inputDigit('4')},
+    {label:'5', cls:'num', action:()=>inputDigit('5')},
+    {label:'6', cls:'num', action:()=>inputDigit('6')},
+    {label:'×', cls:'op', action:()=>inputOp('*')},
+    {label:'S⇔D', cls:'', action:toggleFrac},
+
+    {label:'1', cls:'num', action:()=>inputDigit('1')},
+    {label:'2', cls:'num', action:()=>inputDigit('2')},
+    {label:'3', cls:'num', action:()=>inputDigit('3')},
+    {label:'−', cls:'op', action:()=>inputOp('-')},
+    {label:'MR', cls:'', action:memRecall},
+
+    {label:'0', cls:'num', action:()=>inputDigit('0')},
+    {label:'.', cls:'num', action:inputDot},
+    {label:'(-)', cls:'', action:inputNeg},
+    {label:'+', cls:'op', action:()=>inputOp('+')},
+    {label:'=', cls:'eq', action:doEquals},
+  ];
+
+  const keysEl = document.getElementById('keys');
+  KEYS.forEach(k=>{
+    const b = document.createElement('button');
+    b.className = 'key ' + (k.cls||'');
+    b.textContent = k.label;
+    if(k.id) b.id = k.id;
+    b.addEventListener('click', k.action);
+    keysEl.appendChild(b);
+  });
+
+  function refreshModeLabel(){
+    const mk = document.getElementById('modeKey');
+    if(mk) mk.textContent = state.mode;
+  }
+  const _render = render;
+  render = function(){ _render(); refreshModeLabel(); };
+
+  // ---------- Keyboard support ----------
+  window.addEventListener('keydown', (e)=>{
+    if(e.key>='0' && e.key<='9'){ inputDigit(e.key); return; }
+    if(e.key==='.'){ inputDot(); return; }
+    if(e.key==='+'){ inputOp('+'); return; }
+    if(e.key==='-'){ inputOp('-'); return; }
+    if(e.key==='*'){ inputOp('*'); return; }
+    if(e.key==='/'){ e.preventDefault(); inputOp('/'); return; }
+    if(e.key==='^'){ inputOp('^'); return; }
+    if(e.key==='('){ inputParenOpen(); return; }
+    if(e.key===')'){ inputParenClose(); return; }
+    if(e.key==='Enter' || e.key==='='){ e.preventDefault(); doEquals(); return; }
+    if(e.key==='Backspace'){ backspace(); return; }
+    if(e.key==='Escape'){ allClear(); return; }
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
